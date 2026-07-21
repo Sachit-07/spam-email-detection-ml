@@ -86,14 +86,21 @@ st.title("Spam Email Detector")
 st.write("Enter an email or SMS message below to check whether it is Spam or Ham.")
 
 input_sms = st.text_area("Enter the message")
-
 if st.button("Predict"):
 
+    # Step 1: Preprocess the text
     transformed_sms = preprocess_text(input_sms)
 
+    # Step 2: Convert to TF-IDF
     vector_input = vectorizer.transform([transformed_sms])
 
+    # Step 3: Predict
     result = model.predict(vector_input)
+
+    # Step 4: Get probabilities
+    probabilities = model.predict_proba(vector_input)
+
+    confidence = max(probabilities[0]) * 100
 
     if result[0] == 1:
         prediction = "Spam"
@@ -101,17 +108,14 @@ if st.button("Predict"):
         prediction = "Ham"
 
     if prediction == "Spam":
-     st.error(f"🚨 Prediction: {prediction}")
+        st.error(f"🚨 Prediction: {prediction}")
     else:
-     st.success(f"✅ Prediction: {prediction}")
+        st.success(f"✅ Prediction: {prediction}")
+
+    st.info(f"Confidence Score: {confidence:.2f}%")
 
     with st.spinner("Generating AI explanation..."):
-     explanation = explain_prediction(input_sms, prediction)
-
-    explanation = explain_prediction(input_sms, prediction)
-    
+        explanation = explain_prediction(input_sms, prediction)
 
     st.subheader("🤖 AI Explanation")
-
     st.write(explanation)
-
